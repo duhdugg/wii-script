@@ -120,6 +120,33 @@ class NunShakeButton:
             else:
                 uinput_device.emit(self.uinput_event, 0)
 
+class ButtonAxis:
+    def __init__(self, wiimote_button, uinput_event):
+        self.wiimote_button = bin(wiimote_button).replace('0b', '')
+        self.uinput_event = uinput_event
+    def __call__(self, wiimote_state, uinput_device):
+        button_state = '0'*16 + bin(wiimote_state['buttons']).replace('0b', '')
+        if button_state[-1*len(self.wiimote_button)] == '1':
+            uinput_device.emit(self.uinput_event, 32767)
+        else:
+            uinput_device.emit(self.uinput_event, 0)
+
+class NunButtonAxis:
+    def __init__(self, wiimote_button, uinput_event):
+        self.wiimote_button = bin(wiimote_button).replace('0b', '')
+        self.uinput_event = uinput_event
+    def __call__(self, wiimote_state, uinput_device):
+        if not 'nunchuk' in wiimote_state.keys():
+            return 0
+        else:
+            button_state = '0'*16 + bin(wiimote_state['nunchuk']['buttons']).replace('0b', '')
+            if button_state[-1*len(self.wiimote_button)] == '1':
+                uinput_device.emit(self.uinput_event, 32767)
+            else:
+                uinput_device.emit(self.uinput_event, 0)
+
+
+
 class MouseAccel:
     def __init__(self, index, uinput_event, rate, sensitivity):
         self.index = index
@@ -204,26 +231,26 @@ pointed_global = Config(
                     'global',
                     )
 
-ir_js = Config(
+l4d2 = Config(
                 [
-                 IRJoystick(0, 1, 512.0, uinput.ABS_HAT1X),
-                 IRJoystick(1, -1, 384.0, uinput.ABS_HAT1Y),
-                 Button(cwiid.BTN_1, uinput.BTN_1),
-                 Button(cwiid.BTN_2, uinput.BTN_2),
-                 Button(cwiid.BTN_A, uinput.BTN_A),
-                 Button(cwiid.BTN_B, uinput.BTN_B),
-                 DPad(cwiid.BTN_DOWN, cwiid.BTN_UP, uinput.ABS_HAT0Y),
-                 DPad(cwiid.BTN_RIGHT, cwiid.BTN_LEFT, uinput.ABS_HAT0X),
-                 Button(cwiid.BTN_PLUS, uinput.BTN_GEAR_UP),
-                 Button(cwiid.BTN_MINUS, uinput.BTN_GEAR_DOWN),
-                 Button(cwiid.BTN_HOME, uinput.BTN_0),
-                 ShakeButton(uinput.BTN_3, 100),
-                 NunStick(0, 1, uinput.ABS_HAT2X),
-                 NunStick(1, -1, uinput.ABS_HAT2Y),
-                 NunShakeButton(uinput.BTN_4, 110),
-                 NunButton(cwiid.NUNCHUK_BTN_Z, uinput.BTN_Z),
-                 NunButton(cwiid.NUNCHUK_BTN_C, uinput.BTN_C),
+                 IRJoystick(0, 1, 512.0, uinput.ABS_RX), # aim
+                 IRJoystick(1, -1, 384.0, uinput.ABS_RY), # aim
+                 Button(cwiid.BTN_1, uinput.BTN_1), # toggle scores
+                 Button(cwiid.BTN_2, uinput.BTN_2), # nothing
+                 Button(cwiid.BTN_A, uinput.BTN_A), # use/menuAccept
+                 Button(cwiid.BTN_B, uinput.BTN_B), # attack
+                 DPad(cwiid.BTN_DOWN, cwiid.BTN_UP, uinput.ABS_HAT0Y), # spin, flash
+                 DPad(cwiid.BTN_RIGHT, cwiid.BTN_LEFT, uinput.ABS_HAT0X), # weapons
+                 Button(cwiid.BTN_MINUS, uinput.BTN_THUMBL), # vocalize
+                 Button(cwiid.BTN_PLUS, uinput.BTN_THUMBR), # scoped zoom
+                 Button(cwiid.BTN_HOME, uinput.BTN_START), # pause
+                 ShakeButton(uinput.BTN_Y, 100), # reload
+                 NunStick(0, 1, uinput.ABS_X), # strafe
+                 NunStick(1, -1, uinput.ABS_Y), # walk
+                 NunShakeButton(uinput.BTN_X, 110), # melee
+                 NunButton(cwiid.NUNCHUK_BTN_Z, uinput.BTN_Z), # crouch
+                 NunButton(cwiid.NUNCHUK_BTN_C, uinput.BTN_C), # jump
                 ],
                 'pointed',
-                'game',
+                'Left4Dead2',
                 )

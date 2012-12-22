@@ -3,7 +3,7 @@
 import cwiid, uinput
 from multiprocessing import Process
 from time import sleep
-from cfg import sideways_game, pointed_global, ir_js
+from cfg import sideways_game, pointed_global, l4d2
 from sys import argv
 
 class Wiimote(cwiid.Wiimote, Process):
@@ -46,7 +46,7 @@ class Wiimote(cwiid.Wiimote, Process):
                 x = 0
 
 if __name__ == '__main__':
-    wm = Wiimote(1, ir_js)
+    wm = Wiimote(1, l4d2)
     wm.run()
     while True:
         sleep(1)
