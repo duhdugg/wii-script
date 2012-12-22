@@ -44,9 +44,42 @@ class MainProcess:
             sleep(0.1)
             self.logger(wm.state)
 
+    def ir_test(self):
+        self.logger('Connecting Wiimote. Sync now.')
+        wm = cwiid.Wiimote()
+        self.logger('Wiimote connected.')
+        self.set_leds(wm)
+        self.set_report(wm)
+        midpoint = (0, 0)
+        distance = (0, 0)
+        while True:
+            point_1 = None
+            point_2 = None
+            sleep(0.05)
+            try:
+                point_1 = wm.state['ir_src'][0]['pos']
+            except Exception:
+                pass
+            try:
+                point_2 = wm.state['ir_src'][1]['pos']
+            except Exception:
+                pass
+            if (not point_1) and (not point_2):
+                continue
+            elif point_1 and (not point_2):
+                point_2 = ( (point_1[0] + distance[0]) , (point_1[1] + distance[1]) )
+            elif point_2 and (not point_1):
+                point_1 = ( (point_2[0] - distance[0]) , (point_2[1] - distance[1]) )
+            midpoint = ( ((point_1[0] + point_2[0]) / 2.0) , ((point_1[1] + point_2[1]) / 2.0) )
+            distance = ( (point_2[0] - point_1[0]) , (point_2[1] - point_1[1]) )
+            hat_x = ( (512 - midpoint[0]) / 512.0 ) * 32767
+            hat_y = ( (384 - midpoint[1]) / 384.0 ) * 32767
+            self.logger(distance)
+
 if __name__ == '__main__':
     def logger(msg):
         print(msg)
     main = MainProcess(logger)
     #main.test_config(sideways_game)
     main.print_status()
+    #main.ir_test()

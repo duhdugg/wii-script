@@ -57,6 +57,20 @@ class Button:
         else:
             uinput_device.emit(self.uinput_event, 0)
 
+class NunButton:
+    def __init__(self, wiimote_button, uinput_event):
+        self.wiimote_button = bin(wiimote_button).replace('0b', '')
+        self.uinput_event = uinput_event
+    def __call__(self, wiimote_state, uinput_device):
+        if not 'nunchuk' in wiimote_state.keys():
+            return 0
+        else:
+            button_state = '0'*16 + bin(wiimote_state['nunchuk']['buttons']).replace('0b', '')
+            if button_state[-1*len(self.wiimote_button)] == '1':
+                uinput_device.emit(self.uinput_event, 1)
+            else:
+                uinput_device.emit(self.uinput_event, 0)
+
 class DPad:
     def __init__(self, wiimote_button, opposite_wiimote_button, uinput_event):
         self.wiimote_button = bin(wiimote_button).replace('0b', '')
@@ -72,19 +86,39 @@ class DPad:
             uinput_device.emit(self.uinput_event, 0)
 
 class ShakeButton:
-    def __init__(self, uinput_event):
+    def __init__(self, uinput_event, sensitivity):
         self.uinput_event = uinput_event
+        self.sensitivity = sensitivity
+        self.natural_state = 120
     def __call__(self, wiimote_state, uinput_device):
-        natural_state = 120
         shake = False
         for x in wiimote_state['acc']:
-            delta = -1 * (natural_state - x)
-            if delta > 40:
+            delta = -1 * (self.natural_state - x)
+            if delta > self.sensitivity:
                 shake = True
         if shake:
             uinput_device.emit(self.uinput_event, 1)
         else:
             uinput_device.emit(self.uinput_event, 0)
+
+class NunShakeButton:
+    def __init__(self, uinput_event, sensitivity):
+        self.uinput_event = uinput_event
+        self.sensitivity = sensitivity
+        self.natural_state = 140
+    def __call__(self, wiimote_state, uinput_device):
+        if not 'nunchuk' in wiimote_state.keys():
+            return 0
+        else:
+            shake = False
+            for x in wiimote_state['nunchuk']['acc']:
+                delta = -1 * (self.natural_state - x)
+                if delta > self.sensitivity:
+                    shake = True
+            if shake:
+                uinput_device.emit(self.uinput_event, 1)
+            else:
+                uinput_device.emit(self.uinput_event, 0)
 
 class MouseAccel:
     def __init__(self, index, uinput_event, rate, sensitivity):
@@ -100,6 +134,48 @@ class MouseAccel:
         change = (-1*r) * ((natural_state - acc_state[self.index]) / s)
         uinput_device.emit(self.uinput_event, change)
 
+class IRJoystick:
+    def __init__(self, index, mult, maxval, uinput_event):
+        self.index = index
+        self.mult = mult
+        self.maxval = maxval
+        self.uinput_event = uinput_event
+        self.mid = 0
+        self.dist = 0
+    def __call__(self, wiimote_state, uinput_device):
+        self.point = [None, None]
+        try:
+            self.point[0] = wiimote_state['ir_src'][0]['pos'][self.index]
+        except Exception, e:
+            pass
+        try:
+            self.point[1] = wiimote_state['ir_src'][1]['pos'][self.index]
+        except Exception, e:
+            pass
+        if (self.point[0] == None) and (self.point[1] == None):
+            return 0
+        elif (self.point[0] != None) and (self.point[1] == None):
+            self.point[1] = self.point[0] + self.dist
+        elif (self.point[0] == None) and (self.point[1] != None):
+            self.point[0] = self.point[1] - self.dist
+        self.mid = (self.point[0] + self.point[1]) / 2.0
+        self.dist = self.point[1] - self.point[0]
+        hatval = int(( (self.maxval - self.mid) / self.maxval) * 32767 * self.mult)
+        uinput_device.emit(self.uinput_event, hatval)
+
+class NunStick:
+    def __init__(self, index, mult, uinput_event):
+        self.index = index
+        self.mult = mult
+        self.uinput_event = uinput_event
+    def __call__(self, wiimote_state, uinput_device):
+        if not 'nunchuk' in wiimote_state.keys():
+            return 0
+        else:
+            stickval = wiimote_state['nunchuk']['stick'][self.index]
+            hatval = int( ((stickval - 127) / 100.0) * 32767 * self.mult)
+            uinput_device.emit(self.uinput_event, hatval)
+
 sideways_game = Config(
                      [
                       Button(cwiid.BTN_1, uinput.BTN_1),
@@ -111,7 +187,7 @@ sideways_game = Config(
                       Button(cwiid.BTN_PLUS, uinput.BTN_GEAR_UP),
                       Button(cwiid.BTN_MINUS, uinput.BTN_GEAR_DOWN),
                       Button(cwiid.BTN_HOME, uinput.BTN_0),
-                      ShakeButton(uinput.BTN_3),
+                      ShakeButton(uinput.BTN_3, 40),
                      ],
                      'sideways',
                      'game',
@@ -127,3 +203,27 @@ pointed_global = Config(
                     'pointed',
                     'global',
                     )
+
+ir_js = Config(
+                [
+                 IRJoystick(0, 1, 512.0, uinput.ABS_HAT1X),
+                 IRJoystick(1, -1, 384.0, uinput.ABS_HAT1Y),
+                 Button(cwiid.BTN_1, uinput.BTN_1),
+                 Button(cwiid.BTN_2, uinput.BTN_2),
+                 Button(cwiid.BTN_A, uinput.BTN_A),
+                 Button(cwiid.BTN_B, uinput.BTN_B),
+                 DPad(cwiid.BTN_DOWN, cwiid.BTN_UP, uinput.ABS_HAT0Y),
+                 DPad(cwiid.BTN_RIGHT, cwiid.BTN_LEFT, uinput.ABS_HAT0X),
+                 Button(cwiid.BTN_PLUS, uinput.BTN_GEAR_UP),
+                 Button(cwiid.BTN_MINUS, uinput.BTN_GEAR_DOWN),
+                 Button(cwiid.BTN_HOME, uinput.BTN_0),
+                 ShakeButton(uinput.BTN_3, 100),
+                 NunStick(0, 1, uinput.ABS_HAT2X),
+                 NunStick(1, -1, uinput.ABS_HAT2Y),
+                 NunShakeButton(uinput.BTN_4, 110),
+                 NunButton(cwiid.NUNCHUK_BTN_Z, uinput.BTN_Z),
+                 NunButton(cwiid.NUNCHUK_BTN_C, uinput.BTN_C),
+                ],
+                'pointed',
+                'game',
+                )
