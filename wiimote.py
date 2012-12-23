@@ -3,8 +3,8 @@
 import cwiid, uinput
 from multiprocessing import Process
 from time import sleep
-from cfg import sideways_game, pointed_global, l4d2
-from sys import argv
+from cfg import pointed_global, super_mario, l4d2
+import argparse
 
 class Wiimote(cwiid.Wiimote, Process):
     LED_CYCLE = (1, 3, 7, 15, 14, 12, 8, 0)
@@ -33,10 +33,10 @@ class Wiimote(cwiid.Wiimote, Process):
         led = 0
         while True:
             sleep(0.001)
-            if x in range(0, 1001, 125):
+            if x in range(0, 1001, 125): # every 1/8th second
                 self.led = self.led_cycle[led]
                 led += 1
-            if x in range(0, 1001, 10):
+            if x in range(0, 1001, 10): # every 1/100th second
                 for event in self.active_config.event_list:
                     event(self.state, self.device)
             x += 1
@@ -45,8 +45,21 @@ class Wiimote(cwiid.Wiimote, Process):
             if x >= 1000:
                 x = 0
 
-if __name__ == '__main__':
-    wm = Wiimote(1, l4d2)
-    wm.run()
+if __name__ == '__main__': # need to modify this to accept args from the command line
+    configs = {
+               'pointed_global': pointed_global,
+               'super_mario': super_mario,
+               'l4d2': l4d2,
+               }
+    parser = argparse.ArgumentParser(description='wii-script')
+    parser.add_argument('-p', action='store', dest='players', type=int,
+                        help='Number of players/wiimotes to connect',
+                        default=1)
+    parser.add_argument('-c', action='store', dest='config',
+                        help='config to load', default='pointed_global')
+    results = parser.parse_args()
+    for x in range(1, results.players+1):
+        wm = Wiimote(x, configs[results.config])
+        wm.start()
     while True:
         sleep(1)

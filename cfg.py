@@ -11,6 +11,13 @@ class Config:
 
     @property
     def event_list(self):
+        """
+        A list of uinput events that will be used by the configuration.
+        Too see a full list of uinput events in a python shell:
+            import uinput
+            help(uinput.ev)
+        You can also reference /usr/include/linux/input.h
+        """
         return self.__event_list
 
     @event_list.setter
@@ -23,6 +30,9 @@ class Config:
 
     @property
     def position(self):
+        """
+        For future use, to automatically load configs based on controller position.
+        """
         return self.__position
 
     @position.setter
@@ -35,6 +45,9 @@ class Config:
 
     @property
     def active_process(self):
+        """
+        For future use, to automatically load configs based on running applications.
+        """
         return self.__active_process
 
     @active_process.setter
@@ -47,6 +60,9 @@ class Config:
 
 
 class Button:
+    """
+    Maps a Wiimote button to a joystick button or keypress event.
+    """
     def __init__(self, wiimote_button, uinput_event):
         self.wiimote_button = bin(wiimote_button).replace('0b', '')
         self.uinput_event = uinput_event
@@ -58,6 +74,9 @@ class Button:
             uinput_device.emit(self.uinput_event, 0)
 
 class NunButton:
+    """
+    Maps a nunchuk button to a joystick button or keypress event.
+    """
     def __init__(self, wiimote_button, uinput_event):
         self.wiimote_button = bin(wiimote_button).replace('0b', '')
         self.uinput_event = uinput_event
@@ -72,6 +91,9 @@ class NunButton:
                 uinput_device.emit(self.uinput_event, 0)
 
 class DPad:
+    """
+    Maps opposite points on a Wiimote DPad to represent an axis on a joystick.
+    """
     def __init__(self, wiimote_button, opposite_wiimote_button, uinput_event):
         self.wiimote_button = bin(wiimote_button).replace('0b', '')
         self.opposite_wiimote_button = bin(opposite_wiimote_button).replace('0b', '')
@@ -86,6 +108,9 @@ class DPad:
             uinput_device.emit(self.uinput_event, 0)
 
 class ShakeButton:
+    """
+    Maps shaking the Wiimote (in any direction) to a joystick button or keypress event.
+    """
     def __init__(self, uinput_event, sensitivity):
         self.uinput_event = uinput_event
         self.sensitivity = sensitivity
@@ -102,6 +127,9 @@ class ShakeButton:
             uinput_device.emit(self.uinput_event, 0)
 
 class NunShakeButton:
+    """
+    Maps shaking the nunchuk (in any direction) to a joystick button or keypress event.
+    """
     def __init__(self, uinput_event, sensitivity):
         self.uinput_event = uinput_event
         self.sensitivity = sensitivity
@@ -121,6 +149,9 @@ class NunShakeButton:
                 uinput_device.emit(self.uinput_event, 0)
 
 class ButtonAxis:
+    """
+    By pressing a Wiimote button, emulate a fully-pressed axis (ideally, gas or brake).
+    """
     def __init__(self, wiimote_button, uinput_event):
         self.wiimote_button = bin(wiimote_button).replace('0b', '')
         self.uinput_event = uinput_event
@@ -132,6 +163,9 @@ class ButtonAxis:
             uinput_device.emit(self.uinput_event, 0)
 
 class NunButtonAxis:
+    """
+    By pressing a nunchuk button, emulate a fully-pressed axis (ideally, gas or brake).
+    """
     def __init__(self, wiimote_button, uinput_event):
         self.wiimote_button = bin(wiimote_button).replace('0b', '')
         self.uinput_event = uinput_event
@@ -148,6 +182,9 @@ class NunButtonAxis:
 
 
 class MouseAccel:
+    """
+    Map the Wiimote accelerometer/gyroscope to the mouse.
+    """
     def __init__(self, index, uinput_event, rate, sensitivity):
         self.index = index
         self.uinput_event = uinput_event
@@ -162,6 +199,9 @@ class MouseAccel:
         uinput_device.emit(self.uinput_event, change)
 
 class IRJoystick:
+    """
+    Map the Wiimote infrared sensor to an absolute value on a joystick axis.
+    """
     def __init__(self, index, mult, maxval, uinput_event):
         self.index = index
         self.mult = mult
@@ -191,6 +231,9 @@ class IRJoystick:
         uinput_device.emit(self.uinput_event, hatval)
 
 class NunStick:
+    """
+    Map the nunchuk control stick to a joystick axis.
+    """
     def __init__(self, index, mult, uinput_event):
         self.index = index
         self.mult = mult
@@ -203,7 +246,18 @@ class NunStick:
             hatval = int( ((stickval - 127) / 100.0) * 32767 * self.mult)
             uinput_device.emit(self.uinput_event, hatval)
 
-sideways_game = Config(
+pointed_global = Config(
+                    [
+                     MouseAccel(0, uinput.REL_X, 2, 5),
+                     MouseAccel(1, uinput.REL_Y, 2, 5),
+                     Button(cwiid.BTN_A, uinput.BTN_LEFT),
+                     Button(cwiid.BTN_B, uinput.BTN_RIGHT),
+                    ],
+                    'pointed',
+                    'global',
+                    )
+
+super_mario = Config(
                      [
                       Button(cwiid.BTN_1, uinput.BTN_1),
                       Button(cwiid.BTN_2, uinput.BTN_2),
@@ -217,20 +271,8 @@ sideways_game = Config(
                       ShakeButton(uinput.BTN_3, 40),
                      ],
                      'sideways',
-                     'game',
+                     'zsnes',
                      )
-
-pointed_global = Config(
-                    [
-                     MouseAccel(0, uinput.REL_X, 2, 5),
-                     MouseAccel(1, uinput.REL_Y, 2, 5),
-                     Button(cwiid.BTN_A, uinput.BTN_LEFT),
-                     Button(cwiid.BTN_B, uinput.BTN_RIGHT),
-                    ],
-                    'pointed',
-                    'global',
-                    )
-
 l4d2 = Config(
                 [
                  IRJoystick(0, 1, 512.0, uinput.ABS_RX), # aim
