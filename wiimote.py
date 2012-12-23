@@ -52,14 +52,16 @@ if __name__ == '__main__': # need to modify this to accept args from the command
                'l4d2': l4d2,
                }
     parser = argparse.ArgumentParser(description='wii-script')
-    parser.add_argument('-p', action='store', dest='players', type=int,
-                        help='Number of players/wiimotes to connect',
+    parser.add_argument('-p', action='store', dest='player', type=int,
+                        help='Number of player/wiimote to connect',
                         default=1)
     parser.add_argument('-c', action='store', dest='config',
                         help='config to load', default='pointed_global')
     results = parser.parse_args()
-    for x in range(1, results.players+1):
-        wm = Wiimote(x, configs[results.config])
-        wm.start()
+    wm = Wiimote(results.player, configs[results.config])
+    wm.start()
+    #for x in range(1, results.players+1):
+    #    wm = Wiimote(x, configs[results.config])
+    #    wm.start()
     while True:
         sleep(1)

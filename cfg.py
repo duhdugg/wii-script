@@ -246,6 +246,21 @@ class NunStick:
             hatval = int( ((stickval - 127) / 100.0) * 32767 * self.mult)
             uinput_device.emit(self.uinput_event, hatval)
 
+class ResetHat:
+    """
+    Map a Wiimote button to override the value of a hat to zero.
+    Useful when IR goes wacky.
+    """
+    def __init__(self, wiimote_button, uinput_event):
+        self.wiimote_button = bin(wiimote_button).replace('0b', '')
+        self.uinput_event = uinput_event
+    def __call__(self, wiimote_state, uinput_device):
+        button_state = '0'*16 + bin(wiimote_state['buttons']).replace('0b', '')
+        if button_state[-1*len(self.wiimote_button)] == '1':
+            uinput_device.emit(self.uinput_event, 0)
+        else:
+            return 0
+
 pointed_global = Config(
                     [
                      MouseAccel(0, uinput.REL_X, 2, 5),
@@ -278,7 +293,6 @@ l4d2 = Config(
                  IRJoystick(0, 1, 512.0, uinput.ABS_RX), # aim
                  IRJoystick(1, -1, 384.0, uinput.ABS_RY), # aim
                  Button(cwiid.BTN_1, uinput.BTN_1), # toggle scores
-                 Button(cwiid.BTN_2, uinput.BTN_2), # nothing
                  Button(cwiid.BTN_A, uinput.BTN_A), # use/menuAccept
                  Button(cwiid.BTN_B, uinput.BTN_B), # attack
                  DPad(cwiid.BTN_DOWN, cwiid.BTN_UP, uinput.ABS_HAT0Y), # spin, flash
@@ -292,6 +306,8 @@ l4d2 = Config(
                  NunShakeButton(uinput.BTN_X, 110), # melee
                  NunButton(cwiid.NUNCHUK_BTN_Z, uinput.BTN_Z), # crouch
                  NunButton(cwiid.NUNCHUK_BTN_C, uinput.BTN_C), # jump
+                 ResetHat(cwiid.BTN_2, uinput.ABS_RX), # reset IR joystick X axis
+                 ResetHat(cwiid.BTN_2, uinput.ABS_RY), # reset IR joystick Y axis
                 ],
                 'pointed',
                 'Left4Dead2',
