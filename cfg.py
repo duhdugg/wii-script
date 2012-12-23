@@ -292,7 +292,7 @@ l4d2 = Config(
                 [
                  IRJoystick(0, 1, 512.0, uinput.ABS_RX), # aim
                  IRJoystick(1, -1, 384.0, uinput.ABS_RY), # aim
-                 Button(cwiid.BTN_1, uinput.BTN_1), # toggle scores
+                 Button(cwiid.BTN_2, uinput.BTN_1), # toggle scores
                  Button(cwiid.BTN_A, uinput.BTN_A), # use/menuAccept
                  Button(cwiid.BTN_B, uinput.BTN_B), # attack
                  DPad(cwiid.BTN_DOWN, cwiid.BTN_UP, uinput.ABS_HAT0Y), # spin, flash
@@ -306,8 +306,8 @@ l4d2 = Config(
                  NunShakeButton(uinput.BTN_X, 110), # melee
                  NunButton(cwiid.NUNCHUK_BTN_Z, uinput.BTN_Z), # crouch
                  NunButton(cwiid.NUNCHUK_BTN_C, uinput.BTN_C), # jump
-                 ResetHat(cwiid.BTN_2, uinput.ABS_RX), # reset IR joystick X axis
-                 ResetHat(cwiid.BTN_2, uinput.ABS_RY), # reset IR joystick Y axis
+                 ResetHat(cwiid.BTN_1, uinput.ABS_RX), # reset IR joystick X axis
+                 ResetHat(cwiid.BTN_1, uinput.ABS_RY), # reset IR joystick Y axis
                 ],
                 'pointed',
                 'Left4Dead2',
