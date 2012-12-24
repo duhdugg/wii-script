@@ -1,8 +1,7 @@
 #!/usr/bin/python2
 
-import cwiid, uinput
 from time import sleep
-from cfg import pointed_global, super_mario, l4d2
+from cfg import *
 
 class MainProcess:
     def __init__(self, logger):
