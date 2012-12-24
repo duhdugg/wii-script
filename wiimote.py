@@ -45,11 +45,6 @@ class Wiimote(cwiid.Wiimote, Process):
                 x = 0
 
 if __name__ == '__main__': # need to modify this to accept args from the command line
-    configs = {
-               'pointed_global': pointed_global,
-               'super_mario': super_mario,
-               'l4d2': l4d2,
-               }
     parser = argparse.ArgumentParser(description='wii-script')
     parser.add_argument('-p', action='store', dest='player', type=int,
                         help='Number of player/wiimote to connect',
@@ -57,7 +52,8 @@ if __name__ == '__main__': # need to modify this to accept args from the command
     parser.add_argument('-c', action='store', dest='config',
                         help='config to load', default='pointed_global')
     results = parser.parse_args()
-    wm = Wiimote(results.player, configs[results.config])
+    exec('config = %s' % results.config)
+    wm = Wiimote(results.player, config)
     wm.run()
     # one day it might work like this...
     #for x in range(1, results.players+1):
