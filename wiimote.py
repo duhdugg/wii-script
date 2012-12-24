@@ -1,9 +1,8 @@
 #!/usr/bin/python2
 
-import cwiid, uinput
 from multiprocessing import Process
 from time import sleep
-from cfg import pointed_global, super_mario, l4d2
+from cfg import *
 import argparse
 
 class Wiimote(cwiid.Wiimote, Process):
@@ -59,7 +58,8 @@ if __name__ == '__main__': # need to modify this to accept args from the command
                         help='config to load', default='pointed_global')
     results = parser.parse_args()
     wm = Wiimote(results.player, configs[results.config])
-    wm.start()
+    wm.run()
+    # one day it might work like this...
     #for x in range(1, results.players+1):
     #    wm = Wiimote(x, configs[results.config])
     #    wm.start()
