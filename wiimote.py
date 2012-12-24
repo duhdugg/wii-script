@@ -22,7 +22,9 @@ class Wiimote(cwiid.Wiimote, Process):
         self.device = uinput.Device(inputs)
 
     def run(self):
+        print 'Connecting Wiimote. Sync now.'
         cwiid.Wiimote.__init__(self)
+        print 'Wiimote connected.'
         self.rpt_mode = cwiid.RPT_ACC | cwiid.RPT_BTN | cwiid.RPT_EXT | cwiid.RPT_IR | cwiid.RPT_STATUS
         sleep(1)
         wm.rumble = 1
