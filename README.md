@@ -35,6 +35,51 @@ This configuration was built for the Left 4 Dead 2 game by Valve. As of right no
 
 To use this configuration, you would need to copy all of the files in the l4d2 config directory to the Steam/SteamApps/common/left\ 4\ dead\ 2/left4dead2/cfg directory. Use of "autoexec.cfg" should be used at your own discretion. The configuration also works with split-screen mode.
 
+**L4D2 In-Game Mappings**
+
+- Infrared pointer
+    + controls pitch and yaw aiming
+- A button
+    + use item
+    + menu accept
+- B (trigger) button
+    + primary attack
+    + menu cancel
+- D-Pad Up
+    + toggle flashlight
+    + menu navigation
+- D-Pad Down
+    + 180 degree spin
+    + menu navigation
+- D-Pad Left
+    + Previous inventory item
+    + menu navigation
+- D-Pad Right
+    + Next inventory item
+    + menu navigation
+- Minus button
+    + toggle melee mode
+- Plus button
+    + scoped weapon zoom
+- Home button
+    + Pause
+- Shake Wiimote
+    + reload (with melee mode off)
+    + attack (with melee mode on)
+- Nunchuk control stick
+    + move forward, backward, strafe left, right
+- Shake Nunchuk
+    + push back
+- Z button (nunchuk)
+    + crouch
+- C button (nunchuk)
+    + jump
+- 1 button
+    + reset IR axis (to stop spinning out of control. Also essential for melee mode)
+- 2 button
+    + toggle scores
+
+
 ## Launching the script
 
 `./wiimote.py -p 1 -c l4d2`
