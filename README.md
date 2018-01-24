@@ -4,6 +4,8 @@
 
 The main goal of this project was to develop an easy-to-configure inteface for the Nintendo Wii remote control on Linux-based bluetooth-enabled PCs. The script requires few dependencies and only requires modifying one file to configure.
 
+You can see this software in action at [https://vimeo.com/56231320](https://vimeo.com/56231320).
+
 ### Dependencies
 
 This software requires the following software dependencies:
